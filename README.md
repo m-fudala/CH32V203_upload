@@ -1,38 +1,44 @@
 # Compiling and flashing for WCH RISC-V products on Windows
 
-## Compile
-[riscv-none-elf-gcc](https://github.com/xpack-dev-tools/riscv-none-elf-gcc-xpack) is used to compile C code.
-
-### Install
-link https://xpack-dev-tools.github.io/riscv-none-elf-gcc-xpack/
-- Install [Node.js](https://nodejs.org/en)
-- Install xpm through npm/Node.js
-```
-npm install --location=global xpm@latest
-```
-- Install gcc
-```
-xpm install @xpack-dev-tools/riscv-none-elf-gcc@latest --verbose
-```
+## Compilation
+WCH's modified RISC-V gcc is used to compile C code. The compiler can be found in MounRiver's directory.
 
 ### Compile
-To program bare-metal WCH's header for specified MCU and core_riscv files are needed.
+Files from MounRiver needed to program bare-metal:
+- WCH's header for specified MCU
+- core_riscv files
+- startup file (comment out jump to SystemInit to avoid default clock settings)
+- linker
+
+Compile your application. As the startup file is written in assembly, files have to be compiled separately.
 ```
-riscv-none-elf-gcc {source path} -o {elf output path} -march=rv32imac -mabi=ilp32 -c -Os -v
+riscv-none-elf-gcc {source_name}.c -o {source_name}.o -c -march=rv32imacxw -mabi=ilp32
 ```
-MounRiver uses -march=rv32imacxw with their modified gcc, but apparently it only allows to use "WCH-Interrupt-fast" attribute with interrupts. Code can also be compiled with their gcc which is located in MounRiver install folder. \
--c option is needed for some reason.
+
+Compile startup file.
 ```
-riscv-none-elf-objcopy {elf path} -O ihex {hex output path} -v
+riscv-none-elf-gcc {startup_name}.c -o {startup_name}.o -c -march=rv32imacxw -mabi=ilp32
+```
+
+Use linker.
+```
+riscv-none-elf-gcc *.o -T {linker_name}.ld -o {output}.elf -nostartfiles
+```
+
+Create executable.
+```
+riscv-none-elf-objcopy {output}.elf -O ihex {hex_output}.hex
 ```
 
 ## Upload
 Download [wlink](https://github.com/ch32-rs/wlink) and use it with the WCH-Link debug probe.
 ```
-wlink erase && wlink flash {hex path} -v
+wlink erase && wlink flash {hex_output} -v
 ```
 In my case erasing already flashed firmware is necessary for upload to work.
 
 ## TODO
 - Use make
 - Debugging
+- Break out of MounRiver's dependency by writing own startup file and linker
+- Use standard gcc
