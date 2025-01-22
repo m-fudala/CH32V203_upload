@@ -38,7 +38,6 @@ wlink erase && wlink flash {hex_output} -v
 In my case erasing already flashed firmware is necessary for upload to work.
 
 ## TODO
-- Use make
 - Debugging
 - Break out of MounRiver's dependency by writing own startup file and linker
 - Use standard gcc
