@@ -6,7 +6,7 @@ BUILD_DIR = build
 LINKER = Link.ld
 LFLAGS = -nostartfiles
 
-STARTUP_NAME = 
+STARTUP_NAME = # input startup's name
 
 OBJCOPYFLAGS = -O ihex
 
@@ -17,7 +17,7 @@ clean:
 	del /S *.o *.elf
 
 $(BUILD_DIR)/main.o: main.c
-	mkdir $(BUILD_DIR)
+	if not exist $(BUILD_DIR) mkdir $(BUILD_DIR) # Windows only
 	$(CC)gcc main.c -o $(BUILD_DIR)/main.o $(CFLAGS)
 
 $(BUILD_DIR)/startup.o: $(STARTUP_NAME)
